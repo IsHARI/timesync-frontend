@@ -1,2 +1,2 @@
 # timesync-frontend
-Frontend for Timesync
+Frontend for [Timesync](https://github.com/IsHARI/timesync)
