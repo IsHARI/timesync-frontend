@@ -1,3 +1,6 @@
+let JWT = null;
+let loggedInUser = null;
+
 document.addEventListener('DOMContentLoaded', function () {
 
     // Register view
@@ -34,27 +37,44 @@ document.addEventListener('DOMContentLoaded', function () {
     loginSubmit.addEventListener('click', function (e) {
         e.preventDefault();
 
-        let creds = JSON.stringify({
+        let user = JSON.stringify({
             'username': loginUsername.value,
             'password': loginPassword.value
         });
 
-        ajaxFetch('/login', 'POST', creds, '')
+        ajaxFetch('/login', 'POST', user, '')
             .then(response => response.headers.get('Authorization'))
             .then(authJwt => {
+                JWT = authJwt;
 
+                ajaxFetch('/users/search/findByUsername?username='+loginUsername.value, 'GET', '', JWT)
+                    .then(response => response.json())
+                    .then(responseJson => loggedInUser = responseJson);
             });
+
     });
+
+    // Groups view
+
+    const groups =  document.getElementById('groups');
+    const groupsList = document.getElementById('groups-list');
+
+    // groups.addEventListener('ta')
 
 });
 
 function ajaxFetch(path, method, body, jwt) {
-    return fetch('http://localhost:8080' + path, {
+    let request = {
         'method': method,
-        'body': body,
         'headers': new Headers({
             'Authorization': jwt,
             'Content-Type': 'application/json'
         })
-    });
+    };
+
+    if(method === 'POST') {
+        request.body = body;
+    }
+
+    return fetch('http://localhost:8080' + path, request);
 }
