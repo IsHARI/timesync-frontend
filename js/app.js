@@ -1,69 +1,38 @@
-let JWT = null;
-let loggedInUser = null;
+const serverUrl = 'http://localhost:8080';
+
+// Load auth data
+let loggedInJwt = localStorage.getItem('loggedInJwt');
+
+let loggedInUsername = localStorage.getItem('loggedInUsername');
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Register view
+    // Nav username
 
-    const registerUsername = document.getElementById('register-username');
-    const registerEmail = document.getElementById('register-email');
-    const registerPassword = document.getElementById('register-password');
-    const registerRepeatPassword = document.getElementById('register-repeat-password');
-    const registerSubmit = document.getElementById('register-submit');
+    const navUsername = document.getElementById('nav-username');
 
-    registerSubmit.addEventListener('click', function (e) {
-        e.preventDefault();
+    navUsername.innerText = loggedInUsername;
 
-        if(registerPassword.value === registerRepeatPassword.value)
-        {
-            let user = JSON.stringify({
-                'username': registerUsername.value,
-                'email': registerEmail.value,
-                'password': registerPassword.value
-            });
+    // Get logged in user
+    ajaxFetch(serverUrl+'/users/search/findByUsername?username='+loggedInUsername, 'GET', '', loggedInJwt)
+        .then(response => response.json())
+        .then(loggedInUser => {
 
-            ajaxFetch('/users/sign-up', 'POST', user, '');
-        } else {
-            console.log("passwords don't match");
-        }
-    });
+            // Groups view
 
-    // Login view
+            const userGroupsPath = loggedInUser._links.groups.href;
 
-    const loginUsername = document.getElementById('login-username');
-    const loginPassword = document.getElementById('login-password');
-    const loginSubmit = document.getElementById('login-submit');
+            ajaxFetch(userGroupsPath, 'GET', '', loggedInJwt)
+                .then(response => response.json())
+                .then(userGroups => console.log(userGroups))
 
-    loginSubmit.addEventListener('click', function (e) {
-        e.preventDefault();
+            const groups = document.getElementById('groups');
+            const groupsList = document.getElementById('groups-list');
 
-        let user = JSON.stringify({
-            'username': loginUsername.value,
-            'password': loginPassword.value
         });
-
-        ajaxFetch('/login', 'POST', user, '')
-            .then(response => response.headers.get('Authorization'))
-            .then(authJwt => {
-                JWT = authJwt;
-
-                ajaxFetch('/users/search/findByUsername?username='+loginUsername.value, 'GET', '', JWT)
-                    .then(response => response.json())
-                    .then(responseJson => loggedInUser = responseJson);
-            });
-
-    });
-
-    // Groups view
-
-    const groups =  document.getElementById('groups');
-    const groupsList = document.getElementById('groups-list');
-
-    // groups.addEventListener('ta')
-
 });
 
-function ajaxFetch(path, method, body, jwt) {
+function ajaxFetch(url, method, body, jwt) {
     let request = {
         'method': method,
         'headers': new Headers({
@@ -72,9 +41,9 @@ function ajaxFetch(path, method, body, jwt) {
         })
     };
 
-    if(method === 'POST') {
+    if (method === 'POST') {
         request.body = body;
     }
 
-    return fetch('http://localhost:8080' + path, request);
+    return fetch(url, request);
 }
