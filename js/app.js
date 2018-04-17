@@ -14,17 +14,23 @@ document.addEventListener('DOMContentLoaded', function () {
     navUsername.innerText = loggedInUsername;
 
     // Get logged in user
-    ajaxFetch(serverUrl+'/users/search/findByUsername?username='+loggedInUsername, 'GET', '', loggedInJwt)
+    ajaxFetch(serverUrl + '/users/search/findByUsername?username=' + loggedInUsername, 'GET', '', loggedInJwt)
         .then(response => response.json())
         .then(loggedInUser => {
 
             // Groups view
 
-            const userGroupsPath = loggedInUser._links.groups.href;
+            const userGroupsPath = loggedInUser._links.self.href;
 
             ajaxFetch(userGroupsPath, 'GET', '', loggedInJwt)
                 .then(response => response.json())
-                .then(userGroups => console.log(userGroups))
+                .then(userGroups => {
+                    for (let key in userGroups) {
+                        if (!key.startsWith('_')) {
+                            console.log(key + " -> " + userGroups[key]);
+                        }
+                    }
+                });
 
             const groups = document.getElementById('groups');
             const groupsList = document.getElementById('groups-list');

@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             ajaxFetch(serverUrl+'/users/sign-up', 'POST', user, '');
+            window.location.href='#login';
         } else {
             console.log("passwords don't match");
         }
