@@ -20,20 +20,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Groups view
 
-            const userGroupsPath = loggedInUser._links.self.href;
+            const groups = document.getElementById('groups');
+            const groupsList = document.getElementById('groups-list');
+            const userGroupsPath = loggedInUser._links.userGroups.href;
 
             ajaxFetch(userGroupsPath, 'GET', '', loggedInJwt)
                 .then(response => response.json())
                 .then(userGroups => {
-                    for (let key in userGroups) {
-                        if (!key.startsWith('_')) {
-                            console.log(key + " -> " + userGroups[key]);
-                        }
-                    }
-                });
+                    userGroups._embedded.userGroups.forEach(userGroup => {
+                        newLi = document.createElement('LI');
+                        newA = document.createElement('A');
+                        newA.innerText = userGroup.name;
 
-            const groups = document.getElementById('groups');
-            const groupsList = document.getElementById('groups-list');
+                        groupHref = userGroup._links.self.href;
+                        groupId = groupHref.substr(groupHref.search(/\d+$/));
+                        newA.setAttribute('href', '#group?id='+groupId);
+
+                        newLi.appendChild(newA);
+                        groupsList.appendChild(newLi);
+                    })
+                });
 
         });
 });
