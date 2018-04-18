@@ -11,23 +11,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
     navUsername.innerText = loggedInUsername;
 
+    // Save clean main
+
+    let mainElem = document.getElementById('main');
+    let cleanMain = mainElem.cloneNode(true);
+
     // Get logged in user
+
     ajaxFetch(serverUrl + '/users/search/findByUsername?username=' + loggedInUsername, 'GET', '', loggedInJwt)
         .then(response => response.json())
         .then(loggedInUser => {
 
             window.addEventListener('hashchange', function (e) {
 
+                // Reset main
+
+                mainElem.parentElement.replaceChild(cleanMain, mainElem);
+                mainElem = document.getElementById('main');
+                cleanMain = mainElem.cloneNode(true);
+
                 // Groups view
+
                 if(/#groups/.test(e.newURL)) {
 
                     const groupsList = document.getElementById('groups-list');
                     const userGroupsPath = loggedInUser._links.userGroups.href;
 
-                    // Clear the list
-                    groupsList.childNodes.forEach(oldChild => groupsList.removeChild(oldChild));
+                    // Populate the list
 
-                    // Update the list
                     ajaxFetch(userGroupsPath, 'GET', '', loggedInJwt)
                         .then(response => response.json())
                         .then(userGroups => {
@@ -47,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 // Group view
+
                 if(/#group\?/.test(e.newURL)) {
 
                }
