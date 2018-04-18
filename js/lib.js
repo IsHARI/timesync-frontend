@@ -1,3 +1,5 @@
+const serverUrl = 'http://localhost:8080';
+
 function ajaxFetch(url, method, body, jwt) {
     let request = {
         'method': method,

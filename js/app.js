@@ -1,5 +1,3 @@
-const serverUrl = 'http://localhost:8080';
-
 // Load auth data
 let loggedInJwt = localStorage.getItem('loggedInJwt');
 

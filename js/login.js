@@ -1,5 +1,3 @@
-const serverUrl = 'http://localhost:8080';
-
 document.addEventListener('DOMContentLoaded', function () {
 
     // Register view
