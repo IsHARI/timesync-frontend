@@ -18,28 +18,41 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(loggedInUser => {
 
-            // Groups view
+            window.addEventListener('hashchange', function (e) {
 
-            const groups = document.getElementById('groups');
-            const groupsList = document.getElementById('groups-list');
-            const userGroupsPath = loggedInUser._links.userGroups.href;
+                // Groups view
+                if(/#groups/.test(e.newURL)) {
 
-            ajaxFetch(userGroupsPath, 'GET', '', loggedInJwt)
-                .then(response => response.json())
-                .then(userGroups => {
-                    userGroups._embedded.userGroups.forEach(userGroup => {
-                        newLi = document.createElement('LI');
-                        newA = document.createElement('A');
-                        newA.innerText = userGroup.name;
+                    const groupsList = document.getElementById('groups-list');
+                    const userGroupsPath = loggedInUser._links.userGroups.href;
 
-                        groupHref = userGroup._links.self.href;
-                        groupId = groupHref.substr(groupHref.search(/\d+$/));
-                        newA.setAttribute('href', '#group?id='+groupId);
+                    // Clear the list
+                    groupsList.childNodes.forEach(oldChild => groupsList.removeChild(oldChild));
 
-                        newLi.appendChild(newA);
-                        groupsList.appendChild(newLi);
-                    })
-                });
+                    // Update the list
+                    ajaxFetch(userGroupsPath, 'GET', '', loggedInJwt)
+                        .then(response => response.json())
+                        .then(userGroups => {
+                            userGroups._embedded.userGroups.forEach(userGroup => {
+                                newLi = document.createElement('LI');
+                                newA = document.createElement('A');
+                                newA.innerText = userGroup.name;
+
+                                groupHref = userGroup._links.self.href;
+                                groupId = groupHref.substr(groupHref.search(/\d+$/));
+                                newA.setAttribute('href', '#group?id='+groupId);
+
+                                newLi.appendChild(newA);
+                                groupsList.appendChild(newLi);
+                            })
+                        });
+                }
+
+                // Group view
+                if(/#group\?/.test(e.newURL)) {
+
+               }
+            });
 
         });
 });
