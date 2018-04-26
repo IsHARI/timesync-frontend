@@ -1,5 +1,3 @@
-const serverUrl = 'http://localhost:8080';
-
 // Load auth data
 let loggedInJwt = localStorage.getItem('loggedInJwt');
 
@@ -13,43 +11,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
     navUsername.innerText = loggedInUsername;
 
+    // Save clean main
+
+    let mainElem = document.getElementById('main');
+    let cleanMain = mainElem.cloneNode(true);
+
     // Get logged in user
+
     ajaxFetch(serverUrl + '/users/search/findByUsername?username=' + loggedInUsername, 'GET', '', loggedInJwt)
         .then(response => response.json())
         .then(loggedInUser => {
 
-            // Groups view
+            window.addEventListener('hashchange', function (e) {
 
-            const userGroupsPath = loggedInUser._links.self.href;
+                // Reset main
 
-            ajaxFetch(userGroupsPath, 'GET', '', loggedInJwt)
-                .then(response => response.json())
-                .then(userGroups => {
-                    for (let key in userGroups) {
-                        if (!key.startsWith('_')) {
-                            console.log(key + " -> " + userGroups[key]);
-                        }
-                    }
-                });
+                mainElem.parentElement.replaceChild(cleanMain, mainElem);
+                mainElem = document.getElementById('main');
+                cleanMain = mainElem.cloneNode(true);
 
-            const groups = document.getElementById('groups');
-            const groupsList = document.getElementById('groups-list');
+                // Groups view
+
+                if(/#groups/.test(e.newURL)) {
+
+                    const groupsList = document.getElementById('groups-list');
+                    const userGroupsPath = loggedInUser._links.userGroups.href;
+
+                    // Populate the list
+
+                    ajaxFetch(userGroupsPath, 'GET', '', loggedInJwt)
+                        .then(response => response.json())
+                        .then(userGroups => {
+                            userGroups._embedded.userGroups.forEach(userGroup => {
+                                newLi = document.createElement('LI');
+                                newA = document.createElement('A');
+                                newA.innerText = userGroup.name;
+
+                                groupHref = userGroup._links.self.href;
+                                groupId = groupHref.substr(groupHref.search(/\d+$/));
+                                newA.setAttribute('href', '#group?id='+groupId);
+
+                                newLi.appendChild(newA);
+                                groupsList.appendChild(newLi);
+                            })
+                        });
+                }
+
+                // Group view
+
+                if(/#group\?/.test(e.newURL)) {
+
+               }
+            });
 
         });
 });
-
-function ajaxFetch(url, method, body, jwt) {
-    let request = {
-        'method': method,
-        'headers': new Headers({
-            'Authorization': jwt,
-            'Content-Type': 'application/json'
-        })
-    };
-
-    if (method === 'POST') {
-        request.body = body;
-    }
-
-    return fetch(url, request);
-}
