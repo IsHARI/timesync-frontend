@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 'password': registerPassword.value
             });
 
-            ajaxFetch(serverUrl+'/users/sign-up', 'POST', user, '');
-            window.location.href='#login';
+            ajaxFetch(serverUrl + '/users/sign-up', 'POST', user, '');
+            window.location.href = '#login';
         } else {
             console.log("passwords don't match");
         }
@@ -39,12 +39,17 @@ document.addEventListener('DOMContentLoaded', function () {
             'password': loginPassword.value
         });
 
-        ajaxFetch(serverUrl+'/login', 'POST', user, '')
+        ajaxFetch(serverUrl + '/login', 'POST', user, '')
             .then(response => response.headers.get('Authorization'))
             .then(loggedInJwt => {
-                localStorage.setItem('loggedInUsername', loginUsername.value);
-                localStorage.setItem('loggedInJwt', loggedInJwt);
-                window.location.href='app.html#groups';
+                if (/Bearer .+/.test(loggedInJwt)) {
+                    localStorage.setItem('loggedInUsername', loginUsername.value);
+                    localStorage.setItem('loggedInJwt', loggedInJwt);
+                    window.location.href = 'app.html#groups';
+                } else {
+                    document.getElementById('login-warning-wrong').classList.remove('hidden');
+                    loginPassword.value = '';
+                }
             });
     });
 });
