@@ -7,21 +7,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const registerPassword = document.getElementById('register-password');
     const registerRepeatPassword = document.getElementById('register-repeat-password');
     const registerSubmit = document.getElementById('register-submit');
+    const registerWarningMatch = document.getElementById('register-warning-match');
 
     registerSubmit.addEventListener('click', function (e) {
-        e.preventDefault();
 
+        e.preventDefault();
         if (registerPassword.value === registerRepeatPassword.value) {
+
             let user = JSON.stringify({
                 'username': registerUsername.value,
                 'email': registerEmail.value,
                 'password': registerPassword.value
             });
-
             ajaxFetch(serverUrl + '/users/sign-up', 'POST', user, '');
             window.location.href = '#login';
         } else {
-            console.log("passwords don't match");
+            registerPassword.value = '';
+
+            registerRepeatPassword.value = '';
+            registerWarningMatch.classList.remove('hidden');
         }
     });
 
